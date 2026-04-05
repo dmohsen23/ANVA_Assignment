@@ -5,7 +5,7 @@
 --      "name":"John Doe", "date_of_birth":"1990-01-01",
 --      "hobbies":["soccer","playing guitar","travel"] }
 -- 3. Solution written in standard SQL (MySQL 8.0)
--- raw_json is stored as NVARCHAR(MAX) text (due to having international characters)
+-- raw_json is stored as NVARCHAR text (due to having international characters)
 -- 4. ETL flows: STAGING -> DWH -> HIST -> DATAMART
 -- 5. IDs kept as VARCHAR for pipeline resilience (source system may change ID format in future)
 -- ================================================================================================
@@ -373,8 +373,6 @@ AND hist_id > 0;  -- hist_id is primary key, satisfies safe mode
 -- Wrapped in transaction for atomicity.
 -- If crash between DELETE and INSERT:
 --   ROLLBACK restores original hobbies.
--- Delete and reload is simpler than smart diff
--- (assignment says: keep it as simple as possible).
 -- ---------------------------------------------------------------------------------------
 START TRANSACTION;
     -- Delete existing hobbies for persons being processed
@@ -440,7 +438,7 @@ DROP PROCEDURE IF EXISTS run_etl$$
 
 CREATE PROCEDURE run_etl()
 BEGIN
-    -- DAYOFWEEK() returns 1 = Sunday in MySQL
+    -- DAYOFWEEK() returns 1 = Sunday
     IF DAYOFWEEK(CURDATE()) = 1 THEN
 
         -- FULL LOAD: every Sunday at 12:01 AM
